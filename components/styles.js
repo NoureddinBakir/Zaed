@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
   },
   video:{
     borderRadius: 20,
+    // height: 90
     // marginBottom: margin,
   },
   infoSections:{

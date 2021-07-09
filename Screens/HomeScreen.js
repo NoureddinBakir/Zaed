@@ -6,13 +6,15 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider, SafeAreaView,useSafeArea } from 'react-native-safe-area-context';
 import {styles} from '../components/styles'
+import { WebView } from 'react-native-webview';
+import { LinearGradient } from 'expo-linear-gradient';
+
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 const CustomData = require('../files/userData.json');
-import { LinearGradient } from 'expo-linear-gradient';
-// import {useFonts} from 'expo-font';
 
 
+// this.setState({comment: 'Hello'});
  const margin = 10
  const colors ={
    grey: '#F4F4F4',
@@ -73,7 +75,7 @@ function HomeScreen({navigation}) {
             resizeMode="contain"
             onPlaybackStatusUpdate={status => setStatus(() => status)}
           />
-          <Pressable onPress={() => navigation.navigate('MyModal')}
+        <Pressable onPress={() => { navigation.navigate('MyModal')}}
           style={{ width: 250, height: 140.625, marginTop: -140.625}}>
           <View
           style={{backgroundColor: 'rgba(160, 160, 160, 0.4)', width: '100%', borderRadius: 7, height: '100%'}}>
@@ -96,6 +98,12 @@ function HomeScreen({navigation}) {
           showsHorizontalScrollIndicator={false}
           data={CustomData}
           horizontal
+          onPress={() =>
+            {navigation.navigate('Main', {
+              screen: 'MyWebModal',
+              params: { socialLink: item.social }
+            })}
+          }
           renderItem={renderItem}
           keyExtractor={item => item.social}
         />
@@ -122,11 +130,29 @@ function ModalScreen({ navigation }) {
         source={{
           uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
         }}
-        useNativeControls
+        useNativeControls={false}
         resizeMode="contain"
         onPlaybackStatusUpdate={status => setStatus(() => status)}
       />
       <View style={{fontSize:28}}>
+        <Button onPress={() => navigation.goBack()} title="Back" color="#FFFF"/>
+      </View>
+    </View>
+  );
+}
+function WebModal({ navigation }) {
+  const insets = useSafeArea();
+  const social_link = JSON.stringify(navigation.getParam('socialLink', 'https://zaed.io'));
+  return (
+    <View style={[{marginTop: insets.top, paddingBottom: insets.bottom, paddingHorizontal: 10, backgroundColor: colors.grey}]}>
+      <View style={{height: '93%', backgroundColor: colors.grey }}>
+        <WebView
+          originWhitelist={['*']}
+          source={{uri: social_link}}
+          style={{ marginTop: 20}}
+        />
+      </View>
+      <View style={{fontSize:28, backgroundColor: colors.blue}}>
         <Button onPress={() => navigation.goBack()} title="Back" color="#FFFF"/>
       </View>
     </View>
@@ -157,6 +183,7 @@ function RootStackScreen() {
         options={{ headerShown: false }}
       />
       <RootStack.Screen name="MyModal" component={ModalScreen} />
+      <RootStack.Screen name="MyWebModal" component={WebModal} />
     </RootStack.Navigator>
   );
 }
@@ -175,6 +202,7 @@ export default function Home() {
       mode="modal">
         <RootStack.Screen name="Main" component={MainStackScreen} />
         <RootStack.Screen name="MyModal" component={ModalScreen} />
+        <RootStack.Screen name="MyWebModal" component={WebModal} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
